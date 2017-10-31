@@ -25,7 +25,9 @@ SECRET_KEY = 't^o4-5m*u$e(b251yc5i&!+lydl))gp-c!lo+4zzo-)8)lt0e+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'necestovka.iapp.eu'
+]
 
 
 # Application definition
