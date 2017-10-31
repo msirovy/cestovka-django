@@ -1,8 +1,16 @@
 from django.contrib import admin
 
-from .models import Users, Flights, Orders
+from .models import Users, Flights, Orders, Airports, Airlines
 from django.forms import TextInput, Textarea
 from django.db import models
+
+
+class NecestovkaAdmin(admin.ModelAdmin):
+    class Media:
+        css = {
+            'all': ('/static/css/admin.css',)
+        }
+
 
 class UsersInline(admin.TabularInline):
     model = Users
@@ -32,7 +40,8 @@ class FlightsInline(admin.StackedInline):
     )
     extra = 0   # pocet predvytvorenych
 
-class OrdersAdmin(admin.ModelAdmin):
+class OrdersAdmin(NecestovkaAdmin):
+    list_display = ('id', 'contact_name', 'price', 'state', 'order_date')
     view_on_site = False
     save_as = True
     readonly_fields = ['order_date']
@@ -51,6 +60,8 @@ class OrdersAdmin(admin.ModelAdmin):
     ]
 
 
+admin.site.register(Airports)
+admin.site.register(Airlines)
 admin.site.register(Users)
 admin.site.register(Flights)
 admin.site.register(Orders, OrdersAdmin)

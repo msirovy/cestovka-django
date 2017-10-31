@@ -1,14 +1,44 @@
 from django.db import models
 
-class Flights(models.Model):
+class Airports(models.Model):
+    class Meta:
+        verbose_name_plural = 'Letiště'
+
     id = models.AutoField(primary_key=True)
-    start_place = models.CharField(max_length=20)
+    code = models.CharField(max_length=15, unique=True)
+    name = models.CharField(max_length=40)
+
+    def __str__(self):
+        return "{} ({})".format(self.code, self.name)
+
+
+class Airlines(models.Model):
+    class Meta:
+        verbose_name_plural = 'Aerolinky'
+        
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=40)
+
+    def __str__(self):
+        return self.name
+
+
+class Flights(models.Model):
+    class Meta:
+        verbose_name_plural = 'Lety'
+    
+    id = models.AutoField(primary_key=True)
+    start_place = models.ForeignKey('Airports', 
+                                    related_name='fk_start_airport')
     start_time = models.DateTimeField()
-    arrive_place = models.CharField(max_length=20)
+    arrive_place = models.ForeignKey('Airports',
+                                    related_name='fk_arrive_airport')
     arrive_time = models.DateTimeField()
-    airlines = models.CharField(max_length=20)
+    airlines = models.ForeignKey('Airlines',
+                                related_name='fk_fly_airlines')
     fly_no = models.CharField(max_length=10)
-    orders = models.ForeignKey('Orders', related_name='fly2orders', on_delete=models.CASCADE)
+    orders = models.ForeignKey('Orders',
+                            related_name='fk_fly_orders')
 
     def __str__(self):
         return "{} ({} -> {})".format(self.fly_no, self.start_place, self.arrive_place)
@@ -17,6 +47,9 @@ class Flights(models.Model):
 class Orders(models.Model):
     ''' Objednavky
     '''
+    class Meta:
+        verbose_name_plural = 'Objednávky'
+    
     STATE = (
         ('zaplacena','Zaplacena'),
         ('rozpracovana', 'Rozpracovana'),
@@ -25,10 +58,10 @@ class Orders(models.Model):
     )
     id = models.IntegerField(primary_key=True)
     order_date = models.DateTimeField(auto_now_add=True)
-    price = models.IntegerField()
-    contact_name = models.CharField(max_length=25)
+    price = models.IntegerField(blank=True, null=True)
+    contact_name = models.CharField(max_length=25, blank=True, null=True)
     contact_email = models.EmailField(max_length=25)
-    contact_phone = models.CharField(max_length=12)
+    contact_phone = models.CharField(max_length=16, blank=True, null=True)
     state = models.CharField(choices=STATE, max_length=10)
 
     def __str__(self):
@@ -42,6 +75,9 @@ class Orders(models.Model):
 
 
 class Users(models.Model):
+    class Meta:
+        verbose_name_plural = 'Uživatelé'
+    
     CABIN_LUGG = (
         ('1', '21x21x24'),
         ('2', '22x22x21')
@@ -52,8 +88,8 @@ class Users(models.Model):
     )
     uid = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)
-    born_year = models.IntegerField()
-    email = models.EmailField(max_length=30)
+    born_year = models.IntegerField(blank=True, null=True)
+    email = models.EmailField(max_length=30, blank=True, null=True)
     cabin_lugg = models.CharField(choices=CABIN_LUGG, max_length=10)
     checked_lugg = models.CharField(choices=CHECKED_LUGG, max_length=10)
     orders = models.ForeignKey('Orders', related_name='user2orders', on_delete=models.CASCADE)
