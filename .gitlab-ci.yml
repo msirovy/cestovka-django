@@ -1,0 +1,14 @@
+image: python:3.6.0-alpine
+
+pages:
+  script:
+  - echo "build process started"
+  - pip install -r requirements.txt
+  - python feed_gen.py public/rss/index.xml
+  volumes: "/persistent"
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
+
