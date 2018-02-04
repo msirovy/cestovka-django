@@ -26,9 +26,14 @@ SECRET_KEY = 't^o4-5m*u$e(b251yc5i&!+lydl))gp-c!lo+4zzo-)8)lt0e+'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'necestovka.iapp.eu'
+    'necestovka.iapp.eu',
+    'localhost',
+    '127.0.0.1'
 ]
 
+IMAP_HOST = 'imap.necestovka.cz'
+IMAP_LOGIN = 'postmaster@necestovka.cz'
+IMAP_PWD = 'ph!wTL5EW5' 
 
 # Application definition
 

@@ -29,16 +29,16 @@ class Flights(models.Model):
     
     id = models.AutoField(primary_key=True)
     start_place = models.ForeignKey('Airports', 
-                                    related_name='fk_start_airport')
+                                    related_name='fk_start_airport', on_delete=models.CASCADE)
     start_time = models.DateTimeField()
     arrive_place = models.ForeignKey('Airports',
-                                    related_name='fk_arrive_airport')
+                                    related_name='fk_arrive_airport', on_delete=models.CASCADE)
     arrive_time = models.DateTimeField()
     airlines = models.ForeignKey('Airlines',
-                                related_name='fk_fly_airlines')
+                                related_name='fk_fly_airlines', on_delete=models.CASCADE)
     fly_no = models.CharField(max_length=10)
     orders = models.ForeignKey('Orders',
-                            related_name='fk_fly_orders')
+                            related_name='fk_fly_orders', on_delete=models.CASCADE)
 
     def __str__(self):
         return "{} ({} -> {})".format(self.fly_no, self.start_place, self.arrive_place)

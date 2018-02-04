@@ -23,5 +23,6 @@ admin.site.site_header = 'NECESTOVKA'
 urlpatterns = [
 #    url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', views.index, name='index')
+    url(r'^$', views.index, name='index'),
+    url(r'getemails/', views.get_emails, name='getemails')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
