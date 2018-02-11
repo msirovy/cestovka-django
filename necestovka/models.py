@@ -24,6 +24,17 @@ class Airlines(models.Model):
 
 
 class Flights(models.Model):
+    CABIN_LUGG = (
+        ('1', 'None'),
+        ('2', '21x21x24'),
+        ('3', '22x22x21')
+    )
+    CHECKED_LUGG = (
+        ('1', 'None'),
+        ('2', '40x50x60'),
+        ('3', '50x65x45')
+    )
+
     class Meta:
         verbose_name_plural = 'Lety'
     
@@ -36,9 +47,11 @@ class Flights(models.Model):
     arrive_time = models.DateTimeField()
     airlines = models.ForeignKey('Airlines',
                                 related_name='fk_fly_airlines')
-    fly_no = models.CharField(max_length=10)
+    fly_no = models.CharField(max_length=30)
     orders = models.ForeignKey('Orders',
                             related_name='fk_fly_orders')
+    cabin_lugg = models.CharField(choices=CABIN_LUGG, max_length=15)
+    checked_lugg = models.CharField(choices=CHECKED_LUGG, max_length=15)
 
     def __str__(self):
         return "{} ({} -> {})".format(self.fly_no, self.start_place, self.arrive_place)
@@ -59,13 +72,11 @@ class Orders(models.Model):
     id = models.IntegerField(primary_key=True)
     order_date = models.DateTimeField(auto_now_add=True)
     price = models.IntegerField(blank=True, null=True)
-    contact_name = models.CharField(max_length=25, blank=True, null=True)
-    contact_email = models.EmailField(max_length=25)
-    contact_phone = models.CharField(max_length=16, blank=True, null=True)
-    state = models.CharField(choices=STATE, max_length=10)
+    contact_name = models.ForeignKey('Users', related_name='fk_orders_users')
+    state = models.CharField(choices=STATE, max_length=50)
 
     def __str__(self):
-        return "{} - {} ({})".format(self.id, self.contact_email, self.order_date)
+        return "{} - {} ({})".format(self.id, self.order_date, self.contact_name)
 
     @property
     def price_per_person(self):
@@ -78,21 +89,13 @@ class Users(models.Model):
     class Meta:
         verbose_name_plural = 'Uživatelé'
     
-    CABIN_LUGG = (
-        ('1', '21x21x24'),
-        ('2', '22x22x21')
-    )
-    CHECKED_LUGG = (
-        ('1', '40x50x60'),
-        ('2', '50x65x45')
-    )
     uid = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=20)
-    born_year = models.IntegerField(blank=True, null=True)
+    name = models.CharField(max_length=50)
+    born_date = models.DateField(blank=True, null=True)
     email = models.EmailField(max_length=30, blank=True, null=True)
-    cabin_lugg = models.CharField(choices=CABIN_LUGG, max_length=10)
-    checked_lugg = models.CharField(choices=CHECKED_LUGG, max_length=10)
-    orders = models.ForeignKey('Orders', related_name='user2orders', on_delete=models.CASCADE)
+    phone = models.CharField(max_length=25, blank=True, null=True)
+    orders = models.ForeignKey('Orders',
+                                related_name='fk_users_orders', blank=True, null=True)
 
     def __str__(self):
-        return self.email
+        return "{} ({} {})".format(self.name, self.email, self.phone)
