@@ -15,6 +15,9 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+EXPORT_TPL = {
+    'order' : 'tpl/order.docx'
+}
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -109,6 +112,7 @@ print('BASE_DIR', BASE_DIR)
 
 STATIC_URL = '/static/'
 STATIC_ROOT = './static/'
+TMP_DIR = './tmp/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "necestovka/static"),
 ]
