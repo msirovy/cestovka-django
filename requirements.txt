@@ -1,2 +1,4 @@
-django
+django<2.0
+django-extensions
 docxtpl
+
