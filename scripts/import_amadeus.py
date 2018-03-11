@@ -7,47 +7,8 @@ import imaplib
 import email
 from config import conf
 
-class AmadeusParser(HTMLParser):
-    SEARCH_PATTERN = [
-        "Booking ref:",
-        "Issued date:",
-        "Traveler",
-        "Departure",
-        "Arrival",
-        "Class",
-        "Baggage allowance",
-        "Booking status"
-        ]
-    tr_start = False
-    load_data = None
-    key = None
-    RET = dict()
-    
-    
-    def handle_starttag(self, tag, attrs):
-        if tag == "tr":
-            self.tr_start = True
-        
-    def handle_endtag(self, tag):
-        if tag == "tr":
-            try:
-                pprint(self.RET[self.load_data])
-            except:
-                pass
-                
-            self.tr_start = False
-            self.load_data = None
-
-        
-    def handle_data(self, data):
-        if len(data) > 1:
-            if data in self.SEARCH_PATTERN:
-                self.load_data = data
-                self.RET[data] = []
-                
-            if self.load_data is not None:
-                self.RET[self.load_data].append(data)
-        pprint(self.RET)
+def logger(msg):
+    print(msg)
 
 
 def download_unread_emails(mailserver, username, password, sender_of_interest=None):
@@ -75,7 +36,7 @@ def download_unread_emails(mailserver, username, password, sender_of_interest=No
         e_id = e_id.decode('utf-8')
         _, response = imap.uid('fetch', e_id, '(RFC822)')
         html = response[0][1].decode('utf-8')
-        email_message = email.message_from_string(html)
+        email_message = email.message_from_string(html)       
         data_dict['mail_to'] = email_message['To']
         data_dict['mail_subject'] = email_message['Subject']
         data_dict['mail_from'] = email.utils.parseaddr(email_message['From'])
@@ -85,24 +46,31 @@ def download_unread_emails(mailserver, username, password, sender_of_interest=No
     return data_list
 
 
+
 def run():
     from necestovka.models import (
-        Users,
+        Passengers,
         Flights, 
         Orders,
         Airports,
         Airlines
     )
     
+    from json import load, dump
+
     for msg in download_unread_emails(mailserver=conf.imap_server, 
                 username=conf.imap_login, password=conf.imap_password, 
-                sender_of_interest="itinerary@amadeus.com"):        
+                sender_of_interest="itinerary@amadeus.com"):
+        with open("./cache/mail-{}".format(msg["mail_subject"]), "w+") as F:
+            dump(msg, F)
+
+    """
         eml = AmadeusParser()
         eml.feed(msg["body"])
         
         print("###########################\n\n")
         pprint(eml.RET)
-
+    """
 
 if __name__ == "__main__":
     run()          

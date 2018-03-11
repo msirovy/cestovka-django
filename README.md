@@ -2,8 +2,92 @@ necestovka
 ==========
 
 
+Flow
+----
+
+1. zakaznik zada na webu objednavku a zavola se funkce 
+	order_create(
+		fly={
+			1:{
+				"from":
+				"to":
+				"start_date":
+				"return_date":
+			}
+		},
+		primary_email="",
+		primary_phone="",
+		passengers=int(),
+		checked_luggage=int()
+	)
+	- funkce vraci vygenerovane order_id= %M + %y + rand(4)  (napr 11181234)  - pouziva se jako VS 
+
+
+2. zamestnanec vyzvedne objednavku, zjisti dalsi informace
+	- kontakty na osoby doplni do IS
+	- doplnkove sluzby doplni do IS 
+	- vytvori nabidku v amadeovi
+
+3. IS naimportuje z emailu lety pod uzivatele v objednavce pomoci funkce 
+	order.add_flights_to_user(
+		user="",
+		fly={
+
+		}
+	)
+	a nastavi se stav na in progress
+
+4. zamestnanec doplni v objednavce ceny a vygeneruje DOCX, ktery pripadne jeste upravi a posila zakaznikovi
+
+5. po zaplaceni se zmeni u objednavky stav na zaplacena
+
+
+
 
 objednavka
 ----------
+
+je vicemene toto:
+
+[
+	{
+		"order_id": ""
+		"contact_email": "",
+		"contact_name": "",
+		"contact_phone":"",
+		"passangers": int(),
+		"checked_luggage": int()
+		"bank_name": "",
+		"final_price": "",
+		"state": 
+		"extras" : [
+			dict(id,name,description,cost),
+			dict(...)
+		],
+		"ordered_fly": [
+			dict(from, start_date, to, return_date),
+			dict(...)
+		],
+		"passengers": [
+			{
+				"name": "",
+				"email": "",
+				"born_date": "",
+				"flights": [
+					fly1_from_amadeus,
+					fly2_from_amadeus,
+				]
+			},
+			{
+				"... next user"
+			}
+		]
+	},
+	{
+		"order_id": ""
+		...
+	}
+]
+
 
 naparovat letenku pod uzivatele aby slo tisknout letenky pro 

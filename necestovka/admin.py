@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Users, Flights, Orders, Airports, Airlines
+from .models import Passengers, Flights, Orders, Airports, Airlines, Extras
 from django.forms import TextInput, Textarea
 from django.db import models
 from django.utils.safestring import mark_safe
@@ -69,8 +69,8 @@ class NecestovkaAdmin(admin.ModelAdmin):
         }
 
 
-class UsersInline(admin.TabularInline):
-    model = Users
+class PassengersInline(admin.TabularInline):
+    model = Passengers
     extra = 0   # pocet predvytvorenych
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size':15})},
@@ -93,7 +93,6 @@ class FlightsInline(admin.StackedInline):
     )'''
     fields = (
         ('fly_no','airlines'),
-        ('cabin_lugg', 'checked_lugg'),
         ('start_place', 'start_time'),
         ('arrive_place', 'arrive_time'),
     )
@@ -101,17 +100,24 @@ class FlightsInline(admin.StackedInline):
 
 class OrdersAdmin(NecestovkaAdmin):
     search_fields = ('id', 'contact_name__name', 'state', 'order_date')
-    list_display = ('id', 'contact_name', 'price', 'state', 'order_date', 'exportAsDocx')
+    list_display = ('id', 'contact_name', 'final_price', 'state', 'order_date', 'exportAsDocx')
     view_on_site = False
     save_as = True
     readonly_fields = ['order_date']
     fieldsets = (
         ("Objednavka", {
-            'fields': ('id', 'order_date', 'contact_name', 'state', 'price')
+            'fields': (
+                'id', 
+                'order_date', 
+                'contact_name', 
+                'state', 
+                'final_price',
+                'checked_luggage'
+                )
         }),
     )
     inlines = [
-        UsersInline,
+        PassengersInline,
         FlightsInline
     ]
     actions = [export_as_docx]
@@ -123,6 +129,8 @@ class OrdersAdmin(NecestovkaAdmin):
 
 admin.site.register(Airports)
 admin.site.register(Airlines)
-admin.site.register(Users)
+admin.site.register(Passengers)
 admin.site.register(Flights)
 admin.site.register(Orders, OrdersAdmin)
+admin.site.register(Extras)
+#admin.site.register(Extras)
