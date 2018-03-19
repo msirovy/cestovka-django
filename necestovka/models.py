@@ -1,4 +1,10 @@
 from django.db import models
+from random import randrange
+from datetime import datetime
+
+
+def auto_id():
+    return str(datetime.now().strftime("%m%y")) + str(randrange(9999))
 
 class Airports(models.Model):
     class Meta:
@@ -24,17 +30,6 @@ class Airlines(models.Model):
 
 
 class Flights(models.Model):
-    CABIN_LUGG = (
-        ('1', 'None'),
-        ('2', '21x21x24'),
-        ('3', '22x22x21')
-    )
-    CHECKED_LUGG = (
-        ('1', 'None'),
-        ('2', '40x50x60'),
-        ('3', '50x65x45')
-    )
-
     class Meta:
         verbose_name_plural = 'Lety'
     
@@ -47,14 +42,50 @@ class Flights(models.Model):
     arrive_time = models.DateTimeField()
     airlines = models.ForeignKey('Airlines',
                                 related_name='fk_fly_airlines')
-    fly_no = models.CharField(max_length=30)
     orders = models.ForeignKey('Orders',
                             related_name='fk_fly_orders')
-    cabin_lugg = models.CharField(choices=CABIN_LUGG, max_length=15)
-    checked_lugg = models.CharField(choices=CHECKED_LUGG, max_length=15)
 
     def __str__(self):
-        return "{} ({} -> {})".format(self.fly_no, self.start_place, self.arrive_place)
+        return "{} -> {} ({})".format(self.start_place, self.arrive_place, self.airlines)
+
+
+class Tickets(models.Model):
+    class Meta:
+        verbose_name_plural = 'Letenky'
+
+    id = models.AutoField(primary_key=True)
+    booking_ref = models.CharField(max_length=15)
+    booking_status = models.CharField(max_length=50)
+    fly_number = models.CharField(max_length=30)
+    depart_place = models.ForeignKey('Airports', 
+                                    related_name='fk_ticket_depart_airport')
+    depart_time = models.DateTimeField()
+    arrive_place = models.ForeignKey('Airports',
+                                    related_name='fk_ticket_arrive_airport')
+    arrive_time = models.DateTimeField()
+    airlines = models.ForeignKey('Airlines',
+                                related_name='fk_ticket_airlines')
+    terminal = models.CharField(max_length=15)
+    baggage_allowed = models.CharField(max_length=200)
+    passenger = models.ForeignKey('Passengers',
+                            related_name='fk_ticket_passenger')
+    #ticket_pdf = 
+
+    def __str__(self):
+        return "{} ({} -> {})".format(self.booking_ref, self.depart_place, self.arrive_place)
+
+
+class Extras(models.Model):
+    class Meta:
+        verbose_name_plural = 'Volitelné služby'
+    
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=500, blank=True)
+    #orders = models.ForeignKey('Orders', related_name='fk_extras_orders')
+
+    def __str__(self):
+        return self.name
 
 
 class Orders(models.Model):
@@ -64,16 +95,27 @@ class Orders(models.Model):
         verbose_name_plural = 'Objednávky'
     
     STATE = (
-        ('zaplacena','Zaplacena'),
-        ('rozpracovana', 'Rozpracovana'),
-        ('nova', 'Nova'),
-        ('zrusena', 'Zrusena')
+        ('paid','Zaplacena'),
+        ('in_progress', 'Rozpracovana'),
+        ('new', 'Nova'),
+        ('canceled', 'Zrusena')
     )
-    id = models.IntegerField(primary_key=True)
+    BANKS = (
+        ('CSOB','CSOB'), 
+        ('Unicredit','Unicredit'), 
+        ('KB','KB')
+    )
+    id = models.CharField(primary_key=True, default=auto_id, max_length=8)
     order_date = models.DateTimeField(auto_now_add=True)
-    price = models.IntegerField(blank=True, null=True)
-    contact_name = models.ForeignKey('Users', related_name='fk_orders_users')
+    final_price = models.IntegerField(blank=True, null=True)
+    contact_name = models.ForeignKey('Passengers', related_name='fk_orders_passenger_primary')
+    passangers_count = models.IntegerField(blank=True, null=True)
+    checked_luggage = models.IntegerField(blank=True, null=True)
     state = models.CharField(choices=STATE, max_length=50)
+    bank_name = models.CharField(choices=BANKS, max_length=50, blank=True)
+    extras = models.ForeignKey('Extras', related_name='fk_orders_extras', blank=True, null=True)
+    ordered_flights = models.ForeignKey('Flights', related_name='fk_orders_ordered_flights', blank=True, null=True)
+    passengers = models.ForeignKey('Passengers', related_name='fk_orders_passengers', blank=True, null=True)
 
     def __str__(self):
         return "{} - {} ({})".format(self.id, self.order_date, self.contact_name)
@@ -84,18 +126,45 @@ class Orders(models.Model):
         '''
         return 0
 
+    @property
+    def create_new(self):
+        '''
+        	order_create(
+		fly={
+			1:{
+				"from":
+				"to":
+				"start_date":
+				"return_date":
+			}
+		},
+		primary_email="",
+		primary_phone="",
+		passangers=int(),
+		checked_luggage=int()
+        '''
+        pass
 
-class Users(models.Model):
+
+class Passengers(models.Model):
     class Meta:
-        verbose_name_plural = 'Uživatelé'
+        verbose_name_plural = 'Pasažéři'
     
-    uid = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50)
     born_date = models.DateField(blank=True, null=True)
     email = models.EmailField(max_length=30, blank=True, null=True)
     phone = models.CharField(max_length=25, blank=True, null=True)
+    luggage_hand = models.CharField(max_length=25, blank=True, null=True)
+    luggage_cabin = models.CharField(max_length=25, blank=True, null=True)
+    luggage_checked = models.CharField(max_length=25, blank=True, null=True)
+    tickets = models.ForeignKey('Tickets',
+                                related_name='fk_passengers_tickets', blank=True, null=True)
     orders = models.ForeignKey('Orders',
-                                related_name='fk_users_orders', blank=True, null=True)
-
+                                related_name='fk_passengers_orders', blank=True, null=True)
+    
     def __str__(self):
         return "{} ({} {})".format(self.name, self.email, self.phone)
+
+    def add_flight(self):
+        pass

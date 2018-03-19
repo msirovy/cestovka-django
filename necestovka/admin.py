@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Users, Flights, Orders, Airports, Airlines
+from .models import Passengers, Flights, Orders, Airports, Airlines, Extras, Tickets
 from django.forms import TextInput, Textarea
 from django.db import models
 from django.utils.safestring import mark_safe
@@ -69,31 +69,36 @@ class NecestovkaAdmin(admin.ModelAdmin):
         }
 
 
-class UsersInline(admin.TabularInline):
-    model = Users
+class PassengersInline(admin.TabularInline):
+    model = Passengers
     extra = 0   # pocet predvytvorenych
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size':15})},
     }
 
+
+class TicketsInline(admin.StackedInline):
+    list_filter = ('booking_ref', 'start_place', 'arrive_place', 'airlines', 'start_time')
+    list_filter = ('booking_ref', 'start_place', 'arrive_place', 'airlines', 'start_time')
+    classes = ('grp-collapse grp-open',)
+    model = Tickets
+    fields = (
+        ('booking_ref', 'airlines', 'terminal'),
+        ('depart_place', 'depart_time'),
+        ('arrive_place', 'arrive_time'),
+        ('baggage_allowed'),
+        ('passenger')
+    )
+    extra = 0
+
+
 class FlightsInline(admin.StackedInline):
-    list_filter = ('fly_no', 'start_place', 'arrive_place', 'airlines', 'start_time')
-    list_filter = ('fly_no', 'start_place', 'arrive_place', 'airlines', 'start_time')
+    list_filter = ('start_place', 'arrive_place', 'airlines', 'start_time')
+    list_filter = ('start_place', 'arrive_place', 'airlines', 'start_time')
     classes = ('grp-collapse grp-open',)
     model = Flights
-    '''fieldsets = (
-        (None, {
-            'classes': ('grp-collapse grp-open',),
-            'fields' : ('fly_no','airlines')
-        }),
-        ('Detail', {
-            'classes': ('grp-collapse grp-open',),
-            'fields': (('start_place', 'start_time'),('arrive_place', 'arrive_time'))
-        }),
-    )'''
     fields = (
-        ('fly_no','airlines'),
-        ('cabin_lugg', 'checked_lugg'),
+        ('airlines'),
         ('start_place', 'start_time'),
         ('arrive_place', 'arrive_time'),
     )
@@ -101,17 +106,24 @@ class FlightsInline(admin.StackedInline):
 
 class OrdersAdmin(NecestovkaAdmin):
     search_fields = ('id', 'contact_name__name', 'state', 'order_date')
-    list_display = ('id', 'contact_name', 'price', 'state', 'order_date', 'exportAsDocx')
+    list_display = ('id', 'contact_name', 'final_price', 'state', 'order_date', 'exportAsDocx')
     view_on_site = False
     save_as = True
     readonly_fields = ['order_date']
     fieldsets = (
         ("Objednavka", {
-            'fields': ('id', 'order_date', 'contact_name', 'state', 'price')
+            'fields': (
+                'id', 
+                'order_date', 
+                'contact_name', 
+                'state', 
+                'final_price',
+                'checked_luggage'
+                )
         }),
     )
     inlines = [
-        UsersInline,
+        PassengersInline,
         FlightsInline
     ]
     actions = [export_as_docx]
@@ -121,8 +133,16 @@ class OrdersAdmin(NecestovkaAdmin):
     exportAsDocx.short_description = "Export"
 
 
+class PassengersAdmin(NecestovkaAdmin):
+    inlines = [
+        TicketsInline
+    ]
+
+
 admin.site.register(Airports)
 admin.site.register(Airlines)
-admin.site.register(Users)
+admin.site.register(Passengers, PassengersAdmin)
 admin.site.register(Flights)
 admin.site.register(Orders, OrdersAdmin)
+admin.site.register(Extras)
+admin.site.register(Tickets)

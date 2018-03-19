@@ -8,3 +8,6 @@ def index(request):
     return HttpResponse(jsondata, 
                         content_type="application/json")
 
+
+def ticket_import_amadeus():
+	return HttpResponse("OK")
