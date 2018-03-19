@@ -42,22 +42,37 @@ class Flights(models.Model):
     arrive_time = models.DateTimeField()
     airlines = models.ForeignKey('Airlines',
                                 related_name='fk_fly_airlines')
-    fly_no = models.CharField(max_length=30)
     orders = models.ForeignKey('Orders',
                             related_name='fk_fly_orders')
 
     def __str__(self):
-        return "{} ({} -> {})".format(self.fly_no, self.start_place, self.arrive_place)
+        return "{} -> {} ({})".format(self.start_place, self.arrive_place, self.airlines)
 
 
-class Tickets(Flights):
+class Tickets(models.Model):
     class Meta:
         verbose_name_plural = 'Letenky'
 
-    name = models.CharField(max_length=120)
+    id = models.AutoField(primary_key=True)
+    booking_ref = models.CharField(max_length=15)
+    booking_status = models.CharField(max_length=50)
+    fly_number = models.CharField(max_length=30)
+    depart_place = models.ForeignKey('Airports', 
+                                    related_name='fk_ticket_depart_airport')
+    depart_time = models.DateTimeField()
+    arrive_place = models.ForeignKey('Airports',
+                                    related_name='fk_ticket_arrive_airport')
+    arrive_time = models.DateTimeField()
+    airlines = models.ForeignKey('Airlines',
+                                related_name='fk_ticket_airlines')
+    terminal = models.CharField(max_length=15)
+    baggage_allowed = models.CharField(max_length=200)
+    passenger = models.ForeignKey('Passengers',
+                            related_name='fk_ticket_passenger')
+    #ticket_pdf = 
 
     def __str__(self):
-        return self.name
+        return "{} ({} -> {})".format(self.booking_ref, self.depart_place, self.arrive_place)
 
 
 class Extras(models.Model):
@@ -80,10 +95,10 @@ class Orders(models.Model):
         verbose_name_plural = 'Objednávky'
     
     STATE = (
-        ('zaplacena','Zaplacena'),
-        ('rozpracovana', 'Rozpracovana'),
-        ('nova', 'Nova'),
-        ('zrusena', 'Zrusena')
+        ('paid','Zaplacena'),
+        ('in_progress', 'Rozpracovana'),
+        ('new', 'Nova'),
+        ('canceled', 'Zrusena')
     )
     BANKS = (
         ('CSOB','CSOB'), 
@@ -99,7 +114,7 @@ class Orders(models.Model):
     state = models.CharField(choices=STATE, max_length=50)
     bank_name = models.CharField(choices=BANKS, max_length=50, blank=True)
     extras = models.ForeignKey('Extras', related_name='fk_orders_extras', blank=True, null=True)
-    fly_ordered = models.ForeignKey('Flights', related_name='fk_orders_orderfly', blank=True, null=True)
+    ordered_flights = models.ForeignKey('Flights', related_name='fk_orders_ordered_flights', blank=True, null=True)
     passengers = models.ForeignKey('Passengers', related_name='fk_orders_passengers', blank=True, null=True)
 
     def __str__(self):
@@ -143,7 +158,7 @@ class Passengers(models.Model):
     luggage_hand = models.CharField(max_length=25, blank=True, null=True)
     luggage_cabin = models.CharField(max_length=25, blank=True, null=True)
     luggage_checked = models.CharField(max_length=25, blank=True, null=True)
-    tickets = models.ForeignKey('Flights',
+    tickets = models.ForeignKey('Tickets',
                                 related_name='fk_passengers_tickets', blank=True, null=True)
     orders = models.ForeignKey('Orders',
                                 related_name='fk_passengers_orders', blank=True, null=True)
@@ -151,3 +166,5 @@ class Passengers(models.Model):
     def __str__(self):
         return "{} ({} {})".format(self.name, self.email, self.phone)
 
+    def add_flight(self):
+        pass

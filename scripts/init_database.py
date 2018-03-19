@@ -14,7 +14,7 @@ def import_airports(airports_path):
                     ap = Airports(name=r[0], code=r[1])
                     ap.save()
                 except:
-                    print("Row is already exists in databaze: {} {}".format(r))
+                    print("Row is already exists in databaze: {}".format(r))
 
     except IOError:
         print("Source data file does not exists")
