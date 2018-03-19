@@ -55,8 +55,8 @@ class Tickets(models.Model):
 
     id = models.AutoField(primary_key=True)
     booking_ref = models.CharField(max_length=15)
-    booking_status = models.CharField(max_length=50)
-    fly_number = models.CharField(max_length=30)
+    booking_status = models.CharField(max_length=50, default="")
+    fly_number = models.CharField(max_length=30, blank=True)
     depart_place = models.ForeignKey('Airports', 
                                     related_name='fk_ticket_depart_airport')
     depart_time = models.DateTimeField()
@@ -64,11 +64,13 @@ class Tickets(models.Model):
                                     related_name='fk_ticket_arrive_airport')
     arrive_time = models.DateTimeField()
     airlines = models.ForeignKey('Airlines',
-                                related_name='fk_ticket_airlines')
-    terminal = models.CharField(max_length=15)
-    baggage_allowed = models.CharField(max_length=200)
+                                related_name='fk_ticket_airlines', blank=True)
+    terminal = models.CharField(max_length=15, blank=True)
+    baggage_allowed = models.CharField(max_length=200, blank=True)
     passenger = models.ForeignKey('Passengers',
                             related_name='fk_ticket_passenger')
+    orders = models.ForeignKey('Orders',
+                            related_name='fk_ticket_orders', blank=True)
     #ticket_pdf = 
 
     def __str__(self):

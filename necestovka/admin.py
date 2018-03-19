@@ -83,11 +83,11 @@ class TicketsInline(admin.StackedInline):
     classes = ('grp-collapse grp-open',)
     model = Tickets
     fields = (
-        ('booking_ref', 'airlines', 'terminal'),
+        ('booking_ref', 'passenger'),
+        ('airlines', 'terminal'),
         ('depart_place', 'depart_time'),
         ('arrive_place', 'arrive_time'),
-        ('baggage_allowed'),
-        ('passenger')
+        ('baggage_allowed')
     )
     extra = 0
 
@@ -123,7 +123,7 @@ class OrdersAdmin(NecestovkaAdmin):
         }),
     )
     inlines = [
-        PassengersInline,
+        TicketsInline,
         FlightsInline
     ]
     actions = [export_as_docx]
