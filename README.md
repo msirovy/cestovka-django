@@ -4,20 +4,22 @@ necestovka
 Installace a spusteni
 ---------------------
 
-pip3 install -r requirements.txt
-./manage.py syncdb
-./manage.py createsuperuser
-./manage.py runscript init_database
-./manage.py runserver
+Toto je potreba projit vzdy pri prvnim (inicializacnim spustenim)
+  - pip3 install -r requirements.txt
+  - ./manage.py syncdb
+  - ./manage.py createsuperuser
+  - ./manage.py runscript init_database
+  - ./manage.py runserver
 
 - aplikace ve vychozim stavu posloucha na 127.0.0.1:8000
-
+- pro testovaci ucely se pouziva sqlite
+- repozitar obsahuje heslo k emailovemu uctu, proto by repozitar nemel byt verejny, pripadne je nutne provest zpetne procisteni gitu
 
 Spousteni uloh:
 ---------------
 Parsovani emailu z amadea je zde (nebyl pristup k zadnemu API):
 
-./manage.py runscript amadeus_parser    
+  ./manage.py runscript amadeus_parser    
 
 
 
