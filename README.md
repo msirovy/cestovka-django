@@ -1,5 +1,5 @@
-necestovka
-==========
+Cestovka evidence
+=================
 
 Installace a spusteni
 ---------------------
@@ -112,4 +112,7 @@ je vicemene toto:
 ]
 
 
-naparovat letenku pod uzivatele aby slo tisknout letenky pro 
+ToDo: 
+ - naparovat letenku pod uzivatele aby slo tisknout letenky pro 
+ - updatovat dokumentaci
+ - vue.js klientska zona
